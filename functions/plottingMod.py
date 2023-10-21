@@ -166,7 +166,7 @@ def PlotImageHistogram(fig,
     colorMap : str
         DESCRIPTION. standard cmap name in plt.imshow
         The default is "Grays_r".
-    coordInlet : list
+    coordInlet : list (or tuple)
         DESCRIPTION. list of subregion of the original image x1,x2,y1,y2
         The default is None.
 
@@ -247,7 +247,7 @@ def PlotAfmProfilePlot(fig,
                        widthpx=512,
                        widthnm=10000):
     '''
-    ...
+    Makes a zoom of an image and plots a profile line using the start and end coordinates
      _____________
     |            |        ↑xshift
     |       ____ |        ↓
@@ -262,22 +262,20 @@ def PlotAfmProfilePlot(fig,
         DESCRIPTION. subplot inside figure grid (gridspec.GridSpec[0,0])
     im : numpy.ndarray
         DESCRIPTION. 
-    shift : TYPE
-        DESCRIPTION.
-    delta : TYPE
-        DESCRIPTION.
-    start : TYPE
-        DESCRIPTION.
-    end : TYPE
-        DESCRIPTION.
-    widthpx : TYPE, optional
-        DESCRIPTION. The default is 512.
-    widthnm : TYPE, optional
-        DESCRIPTION. The default is 10000.
-
-    Returns
-    -------
-    None.
+    shift : tuple
+        DESCRIPTION. size 2 tuple (xshift,yshift) for starting coordinates of zoom
+    delta : int
+        DESCRIPTION. pixel size of the zoom. xshift+delta<im.shape[0] and y shift+delta<im.shape[1]
+    start : tuple
+        DESCRIPTION.size 2 tuple (xstart,ystart) for start of profile line
+    end : tuple
+        DESCRIPTION.size 2 tuple (xend,yend) for end of profile line
+    widthpx : float
+        DESCRIPTION. known lenght of image in pixels to calculate image scale
+        The default is 512.
+    widthnm : float
+        DESCRIPTION. known lenght of image in pixels to calculate image scale
+        The default is 10000.
 
     '''
     im = im[shift[0]:shift[0]+delta,shift[1]:shift[1]+delta]
@@ -306,6 +304,31 @@ def PlotHSB(fig,
             orientations,
             im,
             coordInlet=None):
+    '''
+    Plots orientation as Hue, coherency as saturation and original image as value
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        DESCRIPTION. figure
+    gs : matplotlib.gridspec.SubplotSpec
+        DESCRIPTION. figure grid
+    orientations : dict
+        DESCRIPTION. orientations dict with numpy.ndarray for the ['theta'],['coherency'],['energy'] 
+    im : numpy.ndarray
+        DESCRIPTION. image
+    coordInlet : list (or tuple)
+        DESCRIPTION. list of subregion of the original image x1,x2,y1,y2
+        The default is None.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        DESCRIPTION. Figure
+    ax : matplotlib.axes._axes.Axes
+        DESCRIPTION. Axes of figure
+
+    '''
     # Alternative composition, start as HSV
     imageDisplayHSV = np.zeros((orientations["theta"].shape[0], orientations["theta"].shape[1], 3), dtype=float)
     # Hue is the orientation (nice circular mapping)
@@ -426,25 +449,28 @@ def PlotOrientationHistogram(fig,
 
     Parameters
     ----------
-    fig : TYPE
-        DESCRIPTION.
-    gs : TYPE
-        DESCRIPTION.
-    orientations : TYPE
-        DESCRIPTION.
-    weighted : TYPE, optional
-        DESCRIPTION. The default is True.
-    energyT : TYPE, optional
-        DESCRIPTION. The default is 0.02.
-    plotWeightMap : TYPE, optional
-        DESCRIPTION. The default is False.
+    fig : matplotlib.figure.Figure
+        DESCRIPTION. figure
+    gs : matplotlib.gridspec.SubplotSpec
+        DESCRIPTION. figure grid
+    orientations : dict
+        DESCRIPTION. orientations dict with numpy.ndarray for the ['theta'],['coherency'],['energy'] 
+    weighted : bool
+        DESCRIPTION. boolean to determine if you want to plot the weighted histogram (with coherency)
+        The default is True.
+    energyT : float
+        DESCRIPTION. energy threshold for weighted histogram (pixels with a lower erngy will not be used for histogram)
+        The default is 0.02.
+    plotWeightMap : bool
+        DESCRIPTION. boolean to determine if you want to plot the map of the weighted histogram
+        The default is False.
 
     Returns
     -------
-    fig : TYPE
-        DESCRIPTION.
-    ax : TYPE
-        DESCRIPTION.
+    fig : matplotlib.figure.Figure
+        DESCRIPTION. Figure
+    ax : matplotlib.axes._axes.Axes
+        DESCRIPTION. Axes of figure
 
     '''
     ax = fig.add_subplot(gs,projection='polar')

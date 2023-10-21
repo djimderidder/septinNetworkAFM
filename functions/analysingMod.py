@@ -7,6 +7,7 @@ This is the analysing module of septinNetworkAFM.
     This module contains the function:
         -CalculateStructureTensor
         -CalculateOrientations
+        -FitHeightProfile
 '''
 import numpy as np
 
@@ -24,16 +25,18 @@ def CalculateStructureTensor(im,
                              mode = "gaussian"
                              ):
     '''
-    
+    Calculate the structure tensor of an image using the mode given
 
     Parameters
     ----------
-    im : TYPE
-        DESCRIPTION.
-    sig : TYPE, optional
-        DESCRIPTION. The default is 1.
-    mode : TYPE, optional
-        DESCRIPTION. The default is "gaussian".
+    im : numpy.ndarray
+        DESCRIPTION. image
+    sig : float (or int)
+        DESCRIPTION. standard deviation necessary to calculate the image gradient
+        The default is 1
+    mode : str
+        DESCRIPTION. choose method to estimate image gradient choose between "finite_difference", "splines", "gaussian" or "test"
+        The default is "gaussian".
 
     Returns
     -------
@@ -67,6 +70,23 @@ def CalculateStructureTensor(im,
 def CalculateOrientations(structureTensor,
                           mask = True
                           ):
+    '''
+    Calculates orientations for structure tensor
+
+    Parameters
+    ----------
+    structureTensor : numpy.ndarray
+        DESCRIPTION. 3xNxM array for each pixels strucutre tensor (Ixx,Iyy,Ixy)
+    mask : bool
+        DESCRIPTION. boolean if you cuts out a circle in the image
+        The default is True.
+
+    Returns
+    -------
+    orientations : dict
+        DESCRIPTION. orientations dict with numpy.ndarray for the ['theta'],['coherency'],['energy'] 
+
+    '''
     orientations = orientationpy.computeOrientation(structureTensor, computeEnergy=True, computeCoherency=True)
     if mask==True:
         #---to avoid edge artifact make circular mask
@@ -85,6 +105,30 @@ def FitHeightProfile(im,
                      config,
                      iConfig=15
                      ):
+    '''
+    Fit the sum of two gaussian over a histogram of an image
+
+    Parameters
+    ----------
+    im : numpy.ndarray
+        DESCRIPTION. image
+    config : pandas.core.frame.DataFrame
+        DESCRIPTION. dataframe of config file
+    iConfig : int
+        DESCRIPTION. index of image to load estimation information
+        The default is 15.
+
+    Raises
+    ------
+    ValueError
+        DESCRIPTION. 'Inside config file give an estimation of fitted values (muBG,sigmaBG,intenistyBG,muNetwork,sigmaNetwork,intenistyNetwork)'
+
+    Returns
+    -------
+    params : tuple
+        DESCRIPTION. size 6 parameter values of two gaussians (muBG,sigmaBG,intenistyBG,muNetwork,sigmaNetwork,intenistyNetwork)'
+
+    '''
     expected = literal_eval(config['params_estimation'][iConfig])
     if isinstance(expected,tuple) and len(expected)==6:
         y,x = np.histogram(im.ravel(),bins=100,density=True)

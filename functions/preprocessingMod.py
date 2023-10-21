@@ -17,6 +17,31 @@ def FloatImgTo8Bit(im,
                    config = None,
                    iConfig = 0,
                    invert = False):
+    '''
+    Convert float image into 8 bit
+
+    Parameters
+    ----------
+    im : numpy.ndarray
+        DESCRIPTION. image
+    size : tuple
+        DESCRIPTION. size 2 tuple with new image size (currenlty have only tried to downscale)
+    config : pandas.core.frame.DataFrame
+        DESCRIPTION. dataframe of config file used to scale image with fitted image height
+        The default is None.
+    iConfig : int
+        DESCRIPTION. index of config
+        The default is 0.
+    invert : bool
+        DESCRIPTION. should the iamge be inverted (we want white foreground)
+        The default is False.
+
+    Returns
+    -------
+    im : numpy.ndarray
+        DESCRIPTION. image
+
+    '''
     if type(config) == pd.core.frame.DataFrame:
         heightLimitUp = config['x4'][iConfig]+3*config['x5'][iConfig]
         im[im>heightLimitUp]=heightLimitUp
