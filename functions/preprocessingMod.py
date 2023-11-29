@@ -42,7 +42,7 @@ def FloatImgTo8Bit(im,
         DESCRIPTION. image
 
     '''
-    if type(config) == pd.core.frame.DataFrame:
+    if type(config) == pd.core.frame.DataFrame and not np.isnan(config['x4'][iConfig]):
         heightLimitUp = config['x4'][iConfig]+3*config['x5'][iConfig]
         im[im>heightLimitUp]=heightLimitUp
         heightLimitLow = config['x1'][iConfig]-3*config['x2'][iConfig]
